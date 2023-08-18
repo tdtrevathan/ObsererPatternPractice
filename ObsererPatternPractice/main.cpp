@@ -1,7 +1,8 @@
 #include <iostream>
 
 enum Event {
-	TEST
+	HALFWAY,
+	LOOP_COMPLETE
 };
 
 class Entity2 {
@@ -40,18 +41,20 @@ public:
 	}
 };
 
-
-
 class Acheivments : public Observer {
 	virtual void onNotify(const Entity2& entity, Event event) {
 		switch (event) {
-		case TEST:
-			unlock("TEST");
+		case HALFWAY:
+			unlock("Almost there!");
+			break;
+		case LOOP_COMPLETE:
+			unlock("We've completed the loop!");
+			break;
 		}
 	}
 
 	void unlock(std::string achievement) {
-		std::cout << achievement;
+		std::cout << achievement << std::endl;
 	}
 
 public:
@@ -61,9 +64,17 @@ public:
 };
 
 class Test : public Subject {
+	int counter = 0;
 public:
-	void DoThing(const Entity2& entity, Event event) {
-		notify(entity, event);
+	void CoutLoops(const Entity2& entity, int loopMax) {
+		std::cout << "Wow we've gone " << counter << " times in a loop!" << std::endl;
+		counter++;
+
+		if (counter == loopMax / 2)
+			notify(entity, HALFWAY);
+
+		if(counter >= loopMax)
+			notify(entity, LOOP_COMPLETE);
 	}
 	void AddObserver(Observer* observer) {
 		addObserver(observer);
@@ -76,5 +87,9 @@ int main() {
 	Acheivments* achievments = new Acheivments();
 
 	test.AddObserver(achievments);
-	test.DoThing(testEntity, TEST);
+
+	int loopMax = 15;
+	for (int i = 0; i < loopMax; i++) {
+		test.CoutLoops(testEntity, loopMax);
+	}
 }
